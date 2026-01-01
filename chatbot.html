@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dos Toros Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    .chatbox {
+      max-width: 400px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .messages {
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .bot {
+      color: green;
+      margin: 5px 0;
+    }
+    .user {
+      color: blue;
+      margin: 5px 0;
+      text-align: right;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chatbox">
+  <div class="messages" id="messages"></div>
+  <input id="input" placeholder="Type your order or question and press Enter" />
+</div>
+
+<script>
+  const messages = document.getElementById("messages");
+  const input = document.getElementById("input");
+
+  function addMessage(text, cls) {
+    const div = document.createElement("div");
+    div.className = cls;
+    div.innerText = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  addMessage("👋 Welcome to Dos Toros! What would you like to order today?", "bot");
+
+  input.addEventListener("keypress", async (e) => {
+    if (e.key === "Enter") {
+      const text = input.value;
+      if (!text) return;
+      input.value = "";
+      addMessage(text, "user");
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      addMessage(data.reply || "Sorry, something went wrong.", "bot");
+    }
+  });
+</script>
+
+</body>
+</html>
